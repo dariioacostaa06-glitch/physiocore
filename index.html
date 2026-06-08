@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PhysioCore — Fisioterapia y recuperación funcional en Córdoba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  *{font-family:'Inter',sans-serif} body{background:#0a0a0a;color:#f0f0f0}
+  :root{--accent:#14b8a6;--accent2:#0d9488}
+  .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}
+  .accent{color:var(--accent)}
+  .accent-bg{background:var(--accent)}
+  .btn-primary{background:var(--accent);color:#000;font-weight:700;transition:all .2s;border-radius:12px;padding:14px 28px;display:inline-block;border:none;cursor:pointer}
+  .btn-primary:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 10px 30px -10px rgba(20,184,166,.6)}
+  .btn-secondary{background:transparent;color:#f0f0f0;font-weight:600;border:1px solid #2a2a2a;border-radius:12px;padding:14px 28px;transition:all .2s;display:inline-block;cursor:pointer}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+  .card{background:#111;border:1px solid #1f1f1f;border-radius:20px;transition:all .3s}
+  .card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(20,184,166,.35)}
+  .card.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+  .timeslot{border:1px solid #2a2a2a;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;background:#111}
+  .timeslot:hover,.timeslot.sel{background:var(--accent);color:#000;border-color:var(--accent)}
+  .timeslot.full{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+  .pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+  .bar{width:100%;border-radius:10px 10px 0 0;transition:height 1.2s cubic-bezier(.22,1,.36,1);height:0}
+  .checkbox-card{transition:all .2s}
+  .checkbox-card.done{background:rgba(20,184,166,.08);border-color:var(--accent)}
+  ::-webkit-scrollbar{width:8px} ::-webkit-scrollbar-track{background:#0a0a0a} ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:4px}
+  .fade-in{opacity:0;transform:translateY(16px);transition:all .5s ease}
+  .fade-in.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body class="antialiased">
+
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 glass">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl accent-bg flex items-center justify-center text-black font-extrabold text-lg">PC</div>
+      <span class="font-bold text-lg tracking-tight">PhysioCore <span class="accent">🩺</span></span>
+    </div>
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+      <a href="#reserva" class="hover:text-white transition">Reserva online</a>
+      <a href="#seguimiento" class="hover:text-white transition">Tu recuperación</a>
+      <a href="#servicios" class="hover:text-white transition">Servicios</a>
+      <a href="#opiniones" class="hover:text-white transition">Opiniones</a>
+    </div>
+    <a href="#reserva" class="btn-primary text-sm !py-2.5 !px-5">Pedir cita</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="pt-40 pb-24 px-6">
+  <div class="max-w-5xl mx-auto text-center">
+    <span class="inline-block glass rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide text-gray-300 mb-6">
+      🩺 Fisioterapia y recuperación funcional · Córdoba
+    </span>
+    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+      Recupérate más rápido,<br/> con <span class="accent">seguimiento real</span> de tu progreso
+    </h1>
+    <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+      En PhysioCore no son citas sueltas: cada sesión queda registrada y tu evolución se mide semana a semana,
+      para que tú y tu especialista veáis —con datos— cómo va tu recuperación.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
+      <a href="#reserva" class="btn-primary">Reservar mi sesión</a>
+      <a href="#seguimiento" class="btn-secondary">Ver cómo seguimos tu progreso</a>
+    </div>
+    <div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-sm text-gray-400">
+      <div class="flex items-center gap-2"><span class="pulse-dot"></span> 6 especialistas activos hoy</div>
+      <div class="flex items-center gap-2"><span class="accent font-bold">+1.200</span> pacientes seguidos con plan de evolución</div>
+      <div class="flex items-center gap-2"><span class="accent font-bold">4,9/5</span> valoración media (312 reseñas)</div>
+    </div>
+  </div>
+</header>
+
+<!-- FEATURE ESTRELLA: RESERVA -->
+<section id="reserva" class="py-20 px-6 border-t border-[#1a1a1a]">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="accent font-semibold text-sm tracking-wide uppercase">Reserva con tu especialista</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mt-2">Elige especialidad, profesional y horario en menos de un minuto</h2>
+      <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Sin llamadas ni esperas: el sistema te muestra disponibilidad real y confirma tu cita al instante.</p>
+    </div>
+
+    <!-- Paso 1: especialidad -->
+    <div class="mb-4 flex items-center gap-3">
+      <div class="w-7 h-7 rounded-full accent-bg text-black font-bold text-sm flex items-center justify-center">1</div>
+      <h3 class="font-semibold text-lg">Elige tu especialidad</h3>
+    </div>
+    <div id="especialidades" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+      <!-- generado por JS -->
+    </div>
+
+    <!-- Paso 2: especialista -->
+    <div id="paso-especialista" class="hidden">
+      <div class="mb-4 flex items-center gap-3">
+        <div class="w-7 h-7 rounded-full accent-bg text-black font-bold text-sm flex items-center justify-center">2</div>
+        <h3 class="font-semibold text-lg">Elige a tu especialista</h3>
+      </div>
+      <div id="especialistas" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12"></div>
+    </div>
+
+    <!-- Paso 3: horario -->
+    <div id="paso-horario" class="hidden">
+      <div class="mb-4 flex items-center gap-3">
+        <div class="w-7 h-7 rounded-full accent-bg text-black font-bold text-sm flex items-center justify-center">3</div>
+        <h3 class="font-semibold text-lg">Elige tu franja horaria esta semana</h3>
+      </div>
+      <div class="card p-6 mb-12">
+        <div id="horarios" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        <p class="text-xs text-gray-500 mt-5">Las franjas en gris ya están reservadas por otros pacientes. Selecciona una libre para continuar.</p>
+      </div>
+    </div>
+
+    <!-- Confirmación -->
+    <div class="text-center">
+      <button id="btn-reservar" class="btn-primary opacity-40 cursor-not-allowed" disabled>Reservar sesión</button>
+      <div id="confirmacion" class="hidden mt-6 max-w-xl mx-auto card p-6 text-left">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">✅</span>
+          <div>
+            <p class="font-semibold mb-1">¡Cita confirmada!</p>
+            <p class="text-sm text-gray-400" id="confirmacion-texto"></p>
+            <p class="text-xs text-gray-500 mt-2">Te enviaremos un recordatorio por SMS y email 24 horas antes de tu sesión.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE ESTRELLA: SEGUIMIENTO -->
+<section id="seguimiento" class="py-20 px-6 border-t border-[#1a1a1a] bg-[#0d0d0d]">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="accent font-semibold text-sm tracking-wide uppercase">Seguimiento de tu recuperación</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mt-2">Tu evolución, medida semana a semana</h2>
+      <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Cada sesión actualiza tu ficha: nivel de dolor, movilidad y ejercicios completados. Así sabes —de verdad— si estás mejorando.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- Gráfico -->
+      <div class="card p-8">
+        <h3 class="font-semibold text-lg mb-1">Evolución de tu nivel de dolor</h3>
+        <p class="text-sm text-gray-500 mb-8">Escala de 0 (sin dolor) a 10 (dolor máximo) — paciente: lesión de rodilla, plan de 4 semanas</p>
+        <div class="flex items-end justify-between gap-4 h-56" id="grafico">
+          <div class="flex-1 flex flex-col items-center justify-end h-full">
+            <span class="text-sm font-bold mb-2 op-label" data-val="8">8/10</span>
+            <div class="bar w-full" data-height="80" style="background:linear-gradient(180deg,#ef4444,#dc2626)"></div>
+            <span class="text-xs text-gray-500 mt-3">Semana 1</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-end h-full">
+            <span class="text-sm font-bold mb-2 op-label" data-val="6">6/10</span>
+            <div class="bar w-full" data-height="60" style="background:linear-gradient(180deg,#f97316,#ea580c)"></div>
+            <span class="text-xs text-gray-500 mt-3">Semana 2</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-end h-full">
+            <span class="text-sm font-bold mb-2 op-label" data-val="5">5/10</span>
+            <div class="bar w-full" data-height="50" style="background:linear-gradient(180deg,#f59e0b,#d97706)"></div>
+            <span class="text-xs text-gray-500 mt-3">Semana 3</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-end h-full">
+            <span class="text-sm font-bold mb-2 op-label" data-val="3">3/10</span>
+            <div class="bar w-full" data-height="30" style="background:linear-gradient(180deg,var(--accent),var(--accent2))"></div>
+            <span class="text-xs text-gray-500 mt-3">Semana 4</span>
+          </div>
+        </div>
+        <div class="mt-8 glass rounded-xl px-5 py-4 flex items-center gap-3">
+          <span class="text-2xl">📉</span>
+          <p class="text-sm text-gray-300"><span class="accent font-semibold">−63% de dolor</span> en 4 semanas de tratamiento guiado. Tu especialista ajusta el plan según estos datos en cada sesión.</p>
+        </div>
+      </div>
+
+      <!-- Ejercicios -->
+      <div class="card p-8">
+        <h3 class="font-semibold text-lg mb-1">Ejercicios de esta semana</h3>
+        <p class="text-sm text-gray-500 mb-6">Marca cada ejercicio cuando lo completes en casa. Tu especialista verá tu constancia en la próxima sesión.</p>
+
+        <div class="space-y-3 mb-6" id="ejercicios">
+          <label class="checkbox-card flex items-center gap-4 card !rounded-xl p-4 cursor-pointer">
+            <input type="checkbox" class="ej-check w-5 h-5 accent-teal-500 rounded" />
+            <div>
+              <p class="font-medium text-sm">Movilidad activa de rodilla — 3 series de 12 repeticiones</p>
+              <p class="text-xs text-gray-500">2 veces al día · 5 minutos</p>
+            </div>
+          </label>
+          <label class="checkbox-card flex items-center gap-4 card !rounded-xl p-4 cursor-pointer">
+            <input type="checkbox" class="ej-check w-5 h-5 accent-teal-500 rounded" />
+            <div>
+              <p class="font-medium text-sm">Fortalecimiento de cuádriceps con banda elástica</p>
+              <p class="text-xs text-gray-500">1 vez al día · 10 minutos</p>
+            </div>
+          </label>
+          <label class="checkbox-card flex items-center gap-4 card !rounded-xl p-4 cursor-pointer">
+            <input type="checkbox" class="ej-check w-5 h-5 accent-teal-500 rounded" />
+            <div>
+              <p class="font-medium text-sm">Estiramiento de isquiotibiales — 4 repeticiones de 30 segundos</p>
+              <p class="text-xs text-gray-500">Después de cada caminata</p>
+            </div>
+          </label>
+          <label class="checkbox-card flex items-center gap-4 card !rounded-xl p-4 cursor-pointer">
+            <input type="checkbox" class="ej-check w-5 h-5 accent-teal-500 rounded" />
+            <div>
+              <p class="font-medium text-sm">Bicicleta estática a ritmo suave</p>
+              <p class="text-xs text-gray-500">3 veces por semana · 15 minutos</p>
+            </div>
+          </label>
+          <label class="checkbox-card flex items-center gap-4 card !rounded-xl p-4 cursor-pointer">
+            <input type="checkbox" class="ej-check w-5 h-5 accent-teal-500 rounded" />
+            <div>
+              <p class="font-medium text-sm">Ejercicios de equilibrio sobre superficie inestable</p>
+              <p class="text-xs text-gray-500">2 veces por semana · 8 minutos</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between text-sm mb-2">
+          <span class="font-medium" id="progreso-texto">0/5 completados esta semana</span>
+          <span class="accent font-semibold" id="progreso-pct">0%</span>
+        </div>
+        <div class="w-full h-3 rounded-full bg-[#1f1f1f] overflow-hidden mb-4">
+          <div id="barra-progreso" class="h-full accent-bg rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+        <p id="mensaje-motivacional" class="text-sm text-gray-400">Aún no has marcado ningún ejercicio. ¡Vamos a por el primero! 💪</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios" class="py-20 px-6 border-t border-[#1a1a1a]">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="accent font-semibold text-sm tracking-wide uppercase">Qué hacemos</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mt-2">Un equipo especializado para cada tipo de recuperación</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="card p-6">
+        <div class="text-3xl mb-4">🏃</div>
+        <h3 class="font-semibold mb-2">Fisioterapia deportiva</h3>
+        <p class="text-sm text-gray-400">Recuperación de lesiones musculares y articulares, readaptación al esfuerzo y prevención para deportistas de cualquier nivel.</p>
+      </div>
+      <div class="card p-6">
+        <div class="text-3xl mb-4">🦴</div>
+        <h3 class="font-semibold mb-2">Traumatológica</h3>
+        <p class="text-sm text-gray-400">Rehabilitación tras fracturas, esguinces, cirugías y procesos degenerativos articulares, con planes de recuperación progresivos.</p>
+      </div>
+      <div class="card p-6">
+        <div class="text-3xl mb-4">🌸</div>
+        <h3 class="font-semibold mb-2">Suelo pélvico</h3>
+        <p class="text-sm text-gray-400">Tratamiento especializado en disfunciones del suelo pélvico, embarazo, postparto y reeducación funcional con total discreción.</p>
+      </div>
+      <div class="card p-6">
+        <div class="text-3xl mb-4">🧠</div>
+        <h3 class="font-semibold mb-2">Neurológica</h3>
+        <p class="text-sm text-gray-400">Recuperación funcional tras ictus, lesiones medulares y enfermedades neurodegenerativas, con seguimiento personalizado a largo plazo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRUEBA SOCIAL -->
+<section id="opiniones" class="py-20 px-6 border-t border-[#1a1a1a] bg-[#0d0d0d]">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="accent font-semibold text-sm tracking-wide uppercase">Lo que dicen nuestros pacientes</span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mt-2">Resultados que se notan, sesión a sesión</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6 mb-14">
+      <div class="card p-6">
+        <p class="text-sm text-gray-300 mb-4">"Llevaba meses con dolor de espalda y en seis semanas con PhysioCore noté un cambio real. Lo mejor es que veía mi propia evolución en la gráfica de cada sesión."</p>
+        <p class="text-sm font-semibold">Marta R. <span class="text-gray-500 font-normal">— recuperación lumbar</span></p>
+      </div>
+      <div class="card p-6">
+        <p class="text-sm text-gray-300 mb-4">"Volví a correr seis semanas después de mi lesión de rodilla. El plan de ejercicios en casa y el seguimiento semanal marcaron la diferencia frente a otras clínicas."</p>
+        <p class="text-sm font-semibold">Javier P. <span class="text-gray-500 font-normal">— readaptación deportiva</span></p>
+      </div>
+      <div class="card p-6">
+        <p class="text-sm text-gray-300 mb-4">"Reservar cita es facilísimo y siempre con el mismo especialista, que conoce mi historial. Eso da mucha tranquilidad cuando estás en proceso de recuperación."</p>
+        <p class="text-sm font-semibold">Lucía G. <span class="text-gray-500 font-normal">— suelo pélvico postparto</span></p>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div class="card p-6"><p class="text-3xl font-extrabold accent">12</p><p class="text-sm text-gray-400 mt-1">años en Córdoba</p></div>
+      <div class="card p-6"><p class="text-3xl font-extrabold accent">+1.200</p><p class="text-sm text-gray-400 mt-1">planes de recuperación activos</p></div>
+      <div class="card p-6"><p class="text-3xl font-extrabold accent">6</p><p class="text-sm text-gray-400 mt-1">especialistas certificados</p></div>
+      <div class="card p-6"><p class="text-3xl font-extrabold accent">4,9★</p><p class="text-sm text-gray-400 mt-1">valoración media</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="py-24 px-6 border-t border-[#1a1a1a]">
+  <div class="max-w-3xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Empieza tu recuperación con un plan que <span class="accent">de verdad puedas seguir</span></h2>
+    <p class="text-gray-400 mb-10">Reserva tu primera valoración con un especialista de PhysioCore y empieza a registrar tu progreso desde el primer día.</p>
+    <a href="#reserva" class="btn-primary">Reservar mi primera sesión</a>
+  </div>
+</section>
+
+<footer class="py-10 px-6 border-t border-[#1a1a1a]">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg accent-bg flex items-center justify-center text-black font-extrabold text-sm">PC</div>
+      <span>PhysioCore · Centro de fisioterapia y recuperación funcional · Córdoba</span>
+    </div>
+    <p>© 2026 PhysioCore. Demo de sitio web creada por PuntoZero.</p>
+  </div>
+</footer>
+
+<script>
+  // ---------- DATOS ----------
+  const especialidades = [
+    { id:'deportiva', icono:'🏃', nombre:'Fisioterapia deportiva', desc:'Recuperación y readaptación para deportistas de todos los niveles.',
+      especialistas:[
+        {nombre:'David Ruiz', exp:'9 años de experiencia'},
+        {nombre:'Sara Montilla', exp:'6 años de experiencia'},
+        {nombre:'Pablo Cano', exp:'12 años de experiencia'}
+      ]},
+    { id:'trauma', icono:'🦴', nombre:'Traumatológica', desc:'Rehabilitación de fracturas, cirugías y procesos articulares.',
+      especialistas:[
+        {nombre:'Elena Vargas', exp:'14 años de experiencia'},
+        {nombre:'Antonio Reyes', exp:'8 años de experiencia'}
+      ]},
+    { id:'pelvico', icono:'🌸', nombre:'Suelo pélvico', desc:'Tratamiento especializado en embarazo, postparto y disfunciones pélvicas.',
+      especialistas:[
+        {nombre:'Carmen Lozano', exp:'10 años de experiencia'},
+        {nombre:'Beatriz Soler', exp:'7 años de experiencia'}
+      ]},
+    { id:'neuro', icono:'🧠', nombre:'Neurológica', desc:'Recuperación funcional tras ictus y enfermedades neurodegenerativas.',
+      especialistas:[
+        {nombre:'Marcos Iglesias', exp:'11 años de experiencia'},
+        {nombre:'Nuria Campos', exp:'9 años de experiencia'},
+        {nombre:'Iván Salas', exp:'5 años de experiencia'}
+      ]}
+  ];
+
+  const horarios = [
+    { dia:'Lunes', franjas:[ {h:'09:00', full:false}, {h:'11:30', full:true}, {h:'16:00', full:false}, {h:'18:30', full:false} ] },
+    { dia:'Miércoles', franjas:[ {h:'10:00', full:true}, {h:'12:30', full:false}, {h:'17:00', full:false}, {h:'19:00', full:true} ] },
+    { dia:'Jueves', franjas:[ {h:'09:30', full:false}, {h:'13:00', full:false}, {h:'16:30', full:true}, {h:'18:00', full:false} ] },
+    { dia:'Viernes', franjas:[ {h:'09:00', full:true}, {h:'11:00', full:false}, {h:'15:30', full:false}, {h:'17:30', full:false} ] }
+  ];
+
+  // ---------- ESTADO ----------
+  let especialidadElegida = null;
+  let especialistaElegido = null;
+  let horarioElegido = null; // {dia, h}
+
+  const elEspecialidades = document.getElementById('especialidades');
+  const elEspecialistas = document.getElementById('especialistas');
+  const elHorarios = document.getElementById('horarios');
+  const pasoEspecialista = document.getElementById('paso-especialista');
+  const pasoHorario = document.getElementById('paso-horario');
+  const btnReservar = document.getElementById('btn-reservar');
+  const confirmacion = document.getElementById('confirmacion');
+  const confirmacionTexto = document.getElementById('confirmacion-texto');
+
+  // ---------- RENDER ESPECIALIDADES ----------
+  especialidades.forEach(esp => {
+    const card = document.createElement('div');
+    card.className = 'card p-6 cursor-pointer';
+    card.dataset.id = esp.id;
+    card.innerHTML = `
+      <div class="text-3xl mb-4">${esp.icono}</div>
+      <h4 class="font-semibold mb-2">${esp.nombre}</h4>
+      <p class="text-sm text-gray-400">${esp.desc}</p>
+    `;
+    card.addEventListener('click', () => seleccionarEspecialidad(esp, card));
+    elEspecialidades.appendChild(card);
+  });
+
+  function seleccionarEspecialidad(esp, card){
+    especialidadElegida = esp;
+    especialistaElegido = null;
+    horarioElegido = null;
+
+    [...elEspecialidades.children].forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    // Render especialistas
+    elEspecialistas.innerHTML = '';
+    esp.especialistas.forEach(es => {
+      const c = document.createElement('div');
+      c.className = 'card p-5 cursor-pointer flex items-center gap-4';
+      c.innerHTML = `
+        <div class="w-12 h-12 rounded-full accent-bg flex items-center justify-center text-black font-bold">
+          ${es.nombre.split(' ').map(n=>n[0]).join('')}
+        </div>
+        <div>
+          <p class="font-semibold text-sm">${es.nombre}</p>
+          <p class="text-xs text-gray-500">${es.exp} · ${esp.nombre}</p>
+        </div>
+      `;
+      c.addEventListener('click', () => seleccionarEspecialista(es, c));
+      elEspecialistas.appendChild(c);
+    });
+
+    pasoEspecialista.classList.remove('hidden');
+    pasoHorario.classList.add('hidden');
+    resetReserva();
+    pasoEspecialista.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function seleccionarEspecialista(es, card){
+    especialistaElegido = es;
+    horarioElegido = null;
+    [...elEspecialistas.children].forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    // Render horarios
+    elHorarios.innerHTML = '';
+    horarios.forEach(dia => {
+      const col = document.createElement('div');
+      col.innerHTML = `<p class="text-sm font-semibold mb-3">${dia.dia}</p>`;
+      const wrap = document.createElement('div');
+      wrap.className = 'flex flex-col gap-2';
+      dia.franjas.forEach(f => {
+        const slot = document.createElement('div');
+        slot.className = 'timeslot' + (f.full ? ' full' : '');
+        slot.textContent = f.h;
+        if(!f.full){
+          slot.addEventListener('click', () => seleccionarHorario(dia.dia, f.h, slot));
+        }
+        wrap.appendChild(slot);
+      });
+      col.appendChild(wrap);
+      elHorarios.appendChild(col);
+    });
+
+    pasoHorario.classList.remove('hidden');
+    resetReserva();
+    pasoHorario.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function seleccionarHorario(dia, hora, slot){
+    horarioElegido = { dia, h: hora };
+    document.querySelectorAll('.timeslot').forEach(s => s.classList.remove('sel'));
+    slot.classList.add('sel');
+    actualizarBotonReserva();
+  }
+
+  function resetReserva(){
+    confirmacion.classList.add('hidden');
+    actualizarBotonReserva();
+  }
+
+  function actualizarBotonReserva(){
+    const listo = especialidadElegida && especialistaElegido && horarioElegido;
+    btnReservar.disabled = !listo;
+    btnReservar.classList.toggle('opacity-40', !listo);
+    btnReservar.classList.toggle('cursor-not-allowed', !listo);
+  }
+
+  btnReservar.addEventListener('click', () => {
+    if(!especialidadElegida || !especialistaElegido || !horarioElegido) return;
+    confirmacionTexto.textContent =
+      `${especialidadElegida.nombre} con ${especialistaElegido.nombre} (${especialistaElegido.exp}) — ${horarioElegido.dia} a las ${horarioElegido.h}.`;
+    confirmacion.classList.remove('hidden');
+    confirmacion.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+
+  // ---------- GRÁFICO ANIMADO AL HACER SCROLL ----------
+  const grafico = document.getElementById('grafico');
+  let graficoAnimado = false;
+  function animarGrafico(){
+    if(graficoAnimado) return;
+    const rect = grafico.getBoundingClientRect();
+    if(rect.top < window.innerHeight * 0.85){
+      graficoAnimado = true;
+      grafico.querySelectorAll('.bar').forEach(bar => {
+        const h = bar.dataset.height;
+        requestAnimationFrame(() => { bar.style.height = h + '%'; });
+      });
+    }
+  }
+  window.addEventListener('scroll', animarGrafico);
+  window.addEventListener('load', animarGrafico);
+
+  // ---------- EJERCICIOS Y PROGRESO ----------
+  const checks = document.querySelectorAll('.ej-check');
+  const barraProgreso = document.getElementById('barra-progreso');
+  const progresoTexto = document.getElementById('progreso-texto');
+  const progresoPct = document.getElementById('progreso-pct');
+  const mensajeMotivacional = document.getElementById('mensaje-motivacional');
+  const total = checks.length;
+
+  const mensajes = [
+    'Aún no has marcado ningún ejercicio. ¡Vamos a por el primero! 💪',
+    '¡Buen comienzo! Cada repetición cuenta para tu recuperación. 🙌',
+    'Vas por buen camino, sigue así esta semana. 🔥',
+    'Genial constancia: tu especialista lo notará en la próxima sesión. ⭐',
+    '¡Casi lo tienes! Un último esfuerzo y completas la semana. 🚀',
+    '¡Semana completada al 100%! Esto acelera tu recuperación de verdad. 🏆'
+  ];
+
+  function actualizarProgreso(){
+    const completados = [...checks].filter(c => c.checked).length;
+    const pct = Math.round((completados / total) * 100);
+    barraProgreso.style.width = pct + '%';
+    progresoTexto.textContent = `${completados}/${total} completados esta semana`;
+    progresoPct.textContent = pct + '%';
+    mensajeMotivacional.textContent = mensajes[completados];
+  }
+
+  checks.forEach(chk => {
+    chk.addEventListener('change', () => {
+      chk.closest('.checkbox-card').classList.toggle('done', chk.checked);
+      actualizarProgreso();
+    });
+  });
+
+  actualizarProgreso();
+</script>
+</body>
+</html>
